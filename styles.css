@@ -1,0 +1,17 @@
+#controls {
+  background-color: red;
+  padding: 0 10px 10px 10px;
+  cursor: move;
+  opacity: 0.55;
+}
+
+#controls:hover {
+  opacity: 0.9;
+}
+
+#mymap {
+  position: fixed;
+  border: 1px dotted #ad2152;
+}
+
+
