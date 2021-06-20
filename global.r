@@ -1,7 +1,7 @@
-# library(tidyverse)
-# library(rvest)
-# library(XML)
-# library(RCurl)
+library(tidyverse)
+library(rvest)
+library(XML)
+library(RCurl)
 
 library(rvest)
 library(stringr)
@@ -44,32 +44,32 @@ country_player = page_info %>% html_nodes(css = "table") %>% html_table %>%
 country_player$No = seq(1 : nrow(country_player))
 country_player$country = rep(countries, each = 23)
 
-# # player links 23*32=736
-# # th a => Selects all <a> elements inside <th> elements
-# # th > a => Selects all <a> elements where the parent is a <th> element
-# # html_attrs VS html_attr difference
-# # Recommd the html_attrs to run and see the result, it fetch all attributes from one node
-# # , plus html_attr can not use the html_text because will cause the issue
-# player_links = page_info %>% html_nodes("table.wikitable th > a") %>% html_attr("href")
-# 
-# # https://www.zsccy.xyz/md/2018-04-08-r%E8%AF%AD%E8%A8%80%E5%B9%B6%E8%A1%8C%E5%8C%96%E8%AE%A1%E7%AE%97%E4%B9%8Bforeach%E5%8C%85/
-# print(">>>>>>>>>>>>> Parallel Satrt")
-# print(date())
-# # player image link
-# # after test, using html_session roughly same speed compaired with directly hitting full https://en.wikipedia.org//wiki/Artem_Dzyuba
-# getImageAndBirthPlace = function(link) {
-#   player_page = html_session("https://en.wikipedia.org/") %>% jump_to(link)
-#   image_link = player_page %>% html_nodes(css = "a.image img") %>% html_attr("src") %>% .[1]
-#   birth_place = player_page %>% html_nodes(css = "td.birthplace") %>% html_text(trim=TRUE)
-#   # clean data 1. remove [2] string in the birth place, 2. explicitly setting "" for pages without birth place
-#   if(length(birth_place) > 0) {
-#     birth_place = birth_place %>% str_replace(pattern = ".{1}[1-9].{1}", replacement = "")
-#   } else {
-#     birth_place = ""
-#   }
-#   c(image_link, birth_place)
-# }
-# 
+# player links 23*32=736
+# th a => Selects all <a> elements inside <th> elements
+# th > a => Selects all <a> elements where the parent is a <th> element
+# html_attrs VS html_attr difference
+# Recommd the html_attrs to run and see the result, it fetch all attributes from one node
+# , plus html_attr can not use the html_text because will cause the issue
+player_links = page_info %>% html_nodes("table.wikitable th > a") %>% html_attr("href")
+
+# https://www.zsccy.xyz/md/2018-04-08-r%E8%AF%AD%E8%A8%80%E5%B9%B6%E8%A1%8C%E5%8C%96%E8%AE%A1%E7%AE%97%E4%B9%8Bforeach%E5%8C%85/
+print(">>>>>>>>>>>>> Parallel Satrt")
+print(date())
+# player image link
+# after test, using html_session roughly same speed compaired with directly hitting full https://en.wikipedia.org//wiki/Artem_Dzyuba
+getImageAndBirthPlace = function(link) {
+  player_page = html_session("https://en.wikipedia.org/") %>% jump_to(link)
+  image_link = player_page %>% html_nodes(css = "a.image img") %>% html_attr("src") %>% .[1]
+  birth_place = player_page %>% html_nodes(css = "td.birthplace") %>% html_text(trim=TRUE)
+  # clean data 1. remove [2] string in the birth place, 2. explicitly setting "" for pages without birth place
+  if(length(birth_place) > 0) {
+    birth_place = birth_place %>% str_replace(pattern = ".{1}[1-9].{1}", replacement = "")
+  } else {
+    birth_place = ""
+  }
+  c(image_link, birth_place)
+}
+
 # # 1. detect the number of CPU cores which is double value of physical number. eg: 4 cores will be 4 * 2
 # # 2. using one less core. do not ask me why
 # sink("Parallel.text")
@@ -90,20 +90,20 @@ country_player$country = rep(countries, each = 23)
 # # after reviewing the result some player link may NA
 # write_rds(p_link_birthPlace_df, "player_birthplace_imageLink.rds")
 # #unlink("Parallel.text")
-# player_birthplace_imageLink = read_rds("player_birthplace_imageLink.rds")
-# 
-# 
-# 
-# # https://cran.r-project.org/web/packages/tidygeocoder/vignettes/tidygeocoder.html
-# # https://www.maps.ie/coordinates.html
-# # https://www.gps-coordinates.net/
-# print(date())
-# # This way is working, but take 9 mins, so need parallel
-# # player_birthplace_imageLink %>% geocode(address=birth_place, lat=latitude, long=longitude, method = 'cascade')
-# 
-# player_birthplace_imageLink$country = rep(countries, each = 23)
-# country_player_list = split(player_birthplace_imageLink, player_birthplace_imageLink$country)
-# 
+player_birthplace_imageLink = read_rds("player_birthplace_imageLink.rds")
+
+
+
+# https://cran.r-project.org/web/packages/tidygeocoder/vignettes/tidygeocoder.html
+# https://www.maps.ie/coordinates.html
+# https://www.gps-coordinates.net/
+print(date())
+# This way is working, but take 9 mins, so need parallel
+# player_birthplace_imageLink %>% geocode(address=birth_place, lat=latitude, long=longitude, method = 'cascade')
+
+player_birthplace_imageLink$country = rep(countries, each = 23)
+country_player_list = split(player_birthplace_imageLink, player_birthplace_imageLink$country)
+
 # # test1: 4-5 mins
 # print(date())
 # cluster = makeCluster(detectCores() - 1)
@@ -119,33 +119,33 @@ country_player$country = rep(countries, each = 23)
 # stopCluster(cluster)
 # print(date())
 # write_rds(p_link_birthPlace_geo, "p_link_birthPlace_geo.rds")
-# p_link_birthPlace_geo = read_rds("p_link_birthPlace_geo.rds")
-# 
-# # merge two data.frames
-# players_list = merge(p_link_birthPlace_geo, country_player, by=c("No","country"))
-# 
-# 
-# 
-# players_list = mutate(players_list,
-#                      link = paste0("https://en.wikipedia.org", player_link),
-#                      popup_text = paste0("<center>",
-#                                          ifelse(!is.na(player_link), paste0("<img src = https:", player_link, " width='100'>"), ""),
-#                                          "</br><b>", Player, "</b>",
-#                                          "</br><b>Date of birth</b>: ", Birthday,
-#                                          "</br><b>Place of birth</b>: ", birth_place,
-#                                          "</br><b>Playing position</b>: ", Position,
-#                                          "</br><b>Club</b>: ", Club,
-#                                          "</br></center>"))
-# 
-# 
-# 2021-01-15: Tested but seems not work well
+p_link_birthPlace_geo = read_rds("p_link_birthPlace_geo.rds")
+
+# merge two data.frames
+players_list = merge(p_link_birthPlace_geo, country_player, by=c("No","country"))
+
+
+
+players_list = mutate(players_list,
+                     link = paste0("https://en.wikipedia.org", player_link),
+                     popup_text = paste0("<center>",
+                                         ifelse(!is.na(player_link), paste0("<img src = https:", player_link, " width='100'>"), ""),
+                                         "</br><b>", Player, "</b>",
+                                         "</br><b>Date of birth</b>: ", Birthday,
+                                         "</br><b>Place of birth</b>: ", birth_place,
+                                         "</br><b>Playing position</b>: ", Position,
+                                         "</br><b>Club</b>: ", Club,
+                                         "</br></center>"))
+ 
+ 
+## 2021-01-15: Tested but seems not work well
 # #Add a very slight random shock to the latitude and longitude coordinates so that the markers don't end up on top of each other.
-# players_list = players_list %>%
-#   mutate(latitude = jitter(latitude, amount = 0.02),
-#          longitude = jitter(latitude, amount = 0.02))
-# write_rds(players_list, "players_list.rds")
+## players_list = players_list %>%
+##   mutate(latitude = jitter(latitude, amount = 0.02),
+##          longitude = jitter(latitude, amount = 0.02))
 
 
+write_rds(players_list, "players_list.rds")
 players_list = read_rds("players_list.rds")
 
 

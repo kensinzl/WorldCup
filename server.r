@@ -17,7 +17,13 @@ server <- function(input, output) {
                  icon = flagIcon, 
                  label = ~Player, 
                  labelOptions = labelOptions(textsize = "12px"),
-                 popup = ~popup_text)
+                 popup = ~popup_text) %>%
+    # Layers control
+    addLayersControl(
+        overlayGroups = c("France"),
+        options = layersControlOptions(collapsed = FALSE)) %>%
+    addPolygons(data = players_list %>% filter(country == "France"), lng = ~longitude, lat = ~latitude,
+                  fill = F, weight = 2, color = "#FFFFCC", group = "France") 
   })
   
   # every country should have 23 players
@@ -40,12 +46,20 @@ server <- function(input, output) {
   })
   
   # do not forget the parenthesis for the reactive param
+  # 1. reactive have to be as the return value which has to be used in somewhere, if not be used then do not be triggered.
+  #    It is a LAZY function.
+  #    That means if we changed the following code from observe into reactive, 
+  # then this leafletProxy with other codes is not executed until we invoke its return value in somewhere.
+  # This is reason why even we choose whatever the country, the flags is always Egypt, Iran and Morocco.
+  # Because these countries are the top 23 rows in flagIcon.
+  
+  # 2. observe is not the LAZY function, it is triggered at the first time.
   observe({
       leafletProxy(mapId = "mymap", data = filteredData()) %>%
       clearMarkers() %>%
-      addMarkers(~longitude, ~latitude, 
-                 icon = filteredIcon(), 
-                 label = ~Player, 
+      addMarkers(~longitude, ~latitude,
+                 icon = filteredIcon(),
+                 label = ~Player,
                  labelOptions = labelOptions(textsize = "12px"),
                  popup = ~popup_text)
   })
