@@ -29,9 +29,11 @@ dashboardPage(
                                                        'Group G' = group_country_df[group_country_df$Group == 'Group G', ]$Country,
                                                        'Group H' = group_country_df[group_country_df$Group == 'Group H', ]$Country
                                                       ),
+                                        choicesOpt = list(content = country_icon),
                                         options = list('live-search' = TRUE)
                                       )
                         )
+              
               ),
       tabItem("subitem1", "Sub-item 1 tab content"),
       tabItem("subitem2", "Sub-item 2 tab content")
