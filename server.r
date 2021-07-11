@@ -40,7 +40,7 @@ server <- function(input, output) {
       flagIcon
     } else {
       # flagIcon$iconUrl has 23 *32 items, but here will use 23 item to override the 23 * 32 items
-      flagIcon$iconUrl <- rep(paste0("Country_flags/", str_replace_all(input$countries, " ", "_"), ".png"), 23)
+      flagIcon$iconUrl <- rep(paste0(str_replace_all(input$countries, " ", "_"), ".png"), 23)
     }
     flagIcon
   })
